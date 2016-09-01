@@ -207,7 +207,7 @@ function drawWindowPixels(context){
     var ULx = 0; var ULy = 100; var ULz = 0;
     var URx = 100; var URy = 100; var URz = 0;
     var LRx = 100; var LRy = 0; var LRz = 0;
-    for(var t=0; t<=1; t=t+0.0001){
+    for(var t=0; t<=1; t=t+0.01){
         var LeftRowX = LLx + t*(ULx - LLx);
         var LeftRowY = LLy + t*(ULy - LLy);
         //var LeftRowX = LLz + t*(ULz - LLz);  //not required
@@ -216,7 +216,7 @@ function drawWindowPixels(context){
         var RightRowY = LRy + t*(URy - LRy); 
         //var RightRowX = LRz + t*(URz - LRz);  //not required
         //alert(RightRowX + "," + RightRowY);
-        for(var s=0; s<=1; s=s+0.0001){
+        for(var s=0; s<=1; s=s+0.01){
             var HpX = LeftRowX + s*(RightRowX - LeftRowX);
             var HpY = LeftRowY + s*(RightRowY - LeftRowY);
 
