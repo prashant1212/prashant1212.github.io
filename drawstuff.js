@@ -194,7 +194,15 @@ function drawInputSpheresUsingArcs(context) {
 
 //--------------------------------------------------------------------------//
 // MY CODE GOES HERE //
+function drawSinglePixel(context){
+    var col = new Color(0,0,0,0);
+    var w = context.canvas.width;
+    var h = context.canvas.height;
+    var imagedata = context.createImageData(w,h);
 
+    drawPixel(imagedata, 0.5, 0.5, col);
+    context.putImageData(imagedata,0,0);
+}
 
 //draws the grid of pixels on the window
 function drawWindowPixels(context){
@@ -248,6 +256,6 @@ function main() {
     //drawInputSpheresUsingArcs(context);
       // shows how to read input file, but not how to draw pixels
 
-     drawWindowPixels(context);
+     drawSinglePixel(context);
       // draws the window pixels grid 
 }
