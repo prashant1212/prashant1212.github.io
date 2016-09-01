@@ -20,7 +20,7 @@ function main() {
 
 // draw random pixels
 function drawRandPixels(context) {
-    var c = new Color(1,0,0,0); // the color at the pixel: probably red
+    var c = new Color(0,0,0,0); // the color at the pixel: probably red
     var w = context.canvas.width;
     var h = context.canvas.height;
     var imagedata = context.createImageData(w,h);
