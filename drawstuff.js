@@ -71,17 +71,13 @@ function drawRandPixels(context) {
     var w = context.canvas.width;
     var h = context.canvas.height;
     var imagedata = context.createImageData(w,h);
-    const PIXEL_DENSITY = 1.0;
+    const PIXEL_DENSITY = 0.01;
     var numPixels = (w*h)*PIXEL_DENSITY; 
     
     // Loop over 1% of the pixels in the image
     for (var x=0; x<numPixels; x++) {
-        c.change(Math.random()*255,Math.random()*255,
-            Math.random()*255,255); // rand color
-        drawPixel(imagedata,
-            Math.floor(Math.random()*w),
-            Math.floor(Math.random()*h),
-                c);
+        c.change(Math.random()*255,Math.random()*255,Math.random()*255,255); // rand color
+        drawPixel(imagedata,Math.floor(Math.random()*w),Math.floor(Math.random()*h),c);
     } // end for x
     context.putImageData(imagedata, 0, 0);
 } // end draw random pixels
@@ -225,12 +221,26 @@ function drawWindowPixels(context){
         //var RightRowX = LRz + t*(URz - LRz);  //not required
         //alert(RightRowX + "," + RightRowY);
         for(var s=0; s<=1; s=s+0.01){
-            var HpX = LeftRowX + s*(RightRowX - LeftRowX);
-            var HpY = LeftRowY + s*(RightRowY - LeftRowY);
-
+            var HpX = Math.floor((LeftRowX + s*(RightRowX - LeftRowX))*w);
+            var HpY = Math.floor((LeftRowY + s*(RightRowY - LeftRowY))*h);
+            var a = Math.floor(Math.random()*w);
+            var b = Math.floor(Math.random()*h)
+            console.log("HpX:"+HpX+"  HpY:"+HpY);
+            col.change(Math.random()*255,Math.random()*255,Math.random()*255,255); // rand color
             drawPixel(imagedata,HpX,HpY,col);
+            //drawPixel(imagedata,,Math.floor(Math.random()*h),col);
         }
     }
+    
+
+    /*for(var i=0;i<=512;i=i+10){
+        for(var j=0;j<=512;j=j+10){
+            col.change(Math.random()*255,Math.random()*255,Math.random()*255,255); // rand color
+            console.log(i+","+j);
+            drawPixel(imagedata,i,j,col);
+        }
+    }*/
+
     context.putImageData(imagedata,0,0);
 }
 
@@ -247,7 +257,7 @@ function main() {
     var context = canvas.getContext("2d");
  
     // Create the image
-    drawRandPixels(context);
+   // drawRandPixels(context);
       // shows how to draw pixels
     
     //drawRandPixelsInInputSpheres(context);
@@ -258,4 +268,6 @@ function main() {
 
      //drawSinglePixel(context);
       // draws the window pixels grid 
+
+     drawWindowPixels(context);
 }
