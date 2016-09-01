@@ -8,10 +8,10 @@ function main() {
     var context = canvas.getContext("2d");
  
     // Create the image
-    //drawRandPixels(context);
+    drawRandPixels(context);
       // shows how to draw pixels
     
-    drawRandPixelsInInputSpheres(context);
+    //drawRandPixelsInInputSpheres(context);
       // shows how to draw pixels and read input file
       
     //drawInputSpheresUsingArcs(context);
