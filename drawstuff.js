@@ -204,9 +204,9 @@ function drawWindowPixels(context){
     var imagedata = context.createImageData(w,h);
     
     var LLx = 0; var LLy = 0; var LLz = 0;
-    var ULx = 0; var ULy = 100; var ULz = 0;
-    var URx = 100; var URy = 100; var URz = 0;
-    var LRx = 100; var LRy = 0; var LRz = 0;
+    var ULx = 0; var ULy = 1; var ULz = 0;
+    var URx = 1; var URy = 1; var URz = 0;
+    var LRx = 1; var LRy = 0; var LRz = 0;
     for(var t=0; t<=1; t=t+0.01){
         var LeftRowX = LLx + t*(ULx - LLx);
         var LeftRowY = LLy + t*(ULy - LLy);
