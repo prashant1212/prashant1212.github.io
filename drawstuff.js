@@ -217,7 +217,7 @@ function drawWindowPixels(context){
         for(var s=0; s<=1; s=s+0.1){
             var HpX = LeftRowX + s*(RightRowX - LeftRowX);
             var HpY = LeftRowY + s*(RightRowY - LeftRowY);
-
+            alert(HpX + "," + HpY);
             drawPixel(imagedata,HpX,HpY,col);
         }
     }
