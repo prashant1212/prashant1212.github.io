@@ -190,19 +190,11 @@ function drawInputSpheresUsingArcs(context) {
 
 //--------------------------------------------------------------------------//
 // MY CODE GOES HERE //
-function drawSinglePixel(context){
-    var col = new Color(0,0,0,0);
-    var w = context.canvas.width;
-    var h = context.canvas.height;
-    var imagedata = context.createImageData(w,h);
 
-    drawPixel(imagedata, 0.5, 0.5, col);
-    context.putImageData(imagedata,0,0);
-}
 
 //draws the grid of pixels on the window
 function drawWindowPixels(context){
-    var col = new Color(0,0,0,0);
+    var col = new Color(0,0,0,255);
     var w = context.canvas.width;
     var h = context.canvas.height;
     var imagedata = context.createImageData(w,h);
@@ -215,20 +207,21 @@ function drawWindowPixels(context){
         var LeftRowX = LLx + t*(ULx - LLx);
         var LeftRowY = LLy + t*(ULy - LLy);
         //var LeftRowX = LLz + t*(ULz - LLz);  //not required
-        //alert(LeftRowX + "," + LeftRowY);
+        
         var RightRowX = LRx + t*(URx - LRx);
         var RightRowY = LRy + t*(URy - LRy); 
         //var RightRowX = LRz + t*(URz - LRz);  //not required
-        //alert(RightRowX + "," + RightRowY);
+        
         for(var s=0; s<=1; s=s+0.01){
             var HpX = Math.floor((LeftRowX + s*(RightRowX - LeftRowX))*w);
             var HpY = Math.floor((LeftRowY + s*(RightRowY - LeftRowY))*h);
             var a = Math.floor(Math.random()*w);
             var b = Math.floor(Math.random()*h)
             console.log("HpX:"+HpX+"  HpY:"+HpY);
-            col.change(Math.random()*255,Math.random()*255,Math.random()*255,255); // rand color
+            
             drawPixel(imagedata,HpX,HpY,col);
-            //drawPixel(imagedata,,Math.floor(Math.random()*h),col);
+            
+            //now for each pixel check for the intersection with the spheres
         }
     }
     
