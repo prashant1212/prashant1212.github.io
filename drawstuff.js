@@ -199,8 +199,10 @@ function drawInputSpheresUsingArcs(context) {
 //draws the grid of pixels on the window
 function drawWindowPixels(context){
     var col = new Color(0,0,0,0);
-    var imagedata = context.createImageData(1,1);
-
+    var w = context.canvas.width;
+    var h = context.canvas.height;
+    var imagedata = context.createImageData(w,h);
+    
     var LLx = 0; var LLy = 0; var LLz = 0;
     var ULx = 0; var ULy = 1; var ULz = 0;
     var URx = 1; var URy = 1; var URz = 0;
@@ -209,11 +211,11 @@ function drawWindowPixels(context){
         var LeftRowX = LLx + t*(ULx - LLx);
         var LeftRowY = LLy + t*(ULy - LLy);
         //var LeftRowX = LLz + t*(ULz - LLz);  //not required
-        alert(LeftRowX + "," + LeftRowY);
+        //alert(LeftRowX + "," + LeftRowY);
         var RightRowX = LRx + t*(URx - LRx);
         var RightRowY = LRy + t*(URy - LRy); 
         //var RightRowX = LRz + t*(URz - LRz);  //not required
-        alert(RightRowX + "," + RightRowY);
+        //alert(RightRowX + "," + RightRowY);
         for(var s=0; s<=1; s=s+0.1){
             var HpX = LeftRowX + s*(RightRowX - LeftRowX);
             var HpY = LeftRowY + s*(RightRowY - LeftRowY);
