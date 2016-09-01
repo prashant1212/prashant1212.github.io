@@ -71,7 +71,7 @@ function drawRandPixels(context) {
     var w = context.canvas.width;
     var h = context.canvas.height;
     var imagedata = context.createImageData(w,h);
-    const PIXEL_DENSITY = 0.01;
+    const PIXEL_DENSITY = 1.0;
     var numPixels = (w*h)*PIXEL_DENSITY; 
     
     // Loop over 1% of the pixels in the image
@@ -247,7 +247,7 @@ function main() {
     var context = canvas.getContext("2d");
  
     // Create the image
-    //drawRandPixels(context);
+    drawRandPixels(context);
       // shows how to draw pixels
     
     //drawRandPixelsInInputSpheres(context);
@@ -258,6 +258,4 @@ function main() {
 
      //drawSinglePixel(context);
       // draws the window pixels grid 
-      context.fillStyle="#FF0000";
-      context.fillRect(20,20,150,100);
 }
