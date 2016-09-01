@@ -256,6 +256,8 @@ function main() {
     //drawInputSpheresUsingArcs(context);
       // shows how to read input file, but not how to draw pixels
 
-     drawSinglePixel(context);
+     //drawSinglePixel(context);
       // draws the window pixels grid 
+      context.fillStyle="#FF0000";
+      context.fillRect(20,20,150,100);
 }
