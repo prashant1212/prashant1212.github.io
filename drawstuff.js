@@ -85,7 +85,7 @@ function drawRandPixels(context) {
 // get the input spheres from the standard class URL
 function getInputSpheres() {
     const INPUT_SPHERES_URL = 
-        "https://ncsucgclass.github.io/prog1/spheres.json";
+        "https://prashant1212.github.io/SphereFiles/spheres.json";
         
     // load the spheres file
     var httpReq = new XMLHttpRequest(); // a new http request
