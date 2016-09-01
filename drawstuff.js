@@ -191,6 +191,43 @@ function drawInputSpheresUsingArcs(context) {
 } // end draw input spheres
 
 
+
+//--------------------------------------------------------------------------//
+// MY CODE GOES HERE //
+
+
+//draws the grid of pixels on the window
+function drawWindowPixels(context){
+    var col = new Color(0,0,0,0);
+    var imagedata = context.createImageData(1,1);
+
+    var LLx = 0; var LLy = 0; var LLz = 0;
+    var ULx = 0; var ULy = 1; var ULz = 0;
+    var URx = 1; var URy = 1; var URz = 0;
+    var LRx = 1; var LRy = 0; var LRz = 0;
+    for(var t=0; t<=1; t=t+0.1){
+        var LeftRowX = LLx + t*(ULx - LLx);
+        var LeftRowY = LLy + t*(ULy - LLy);
+        //var LeftRowX = LLz + t*(ULz - LLz);  //not required
+
+        var RightRowX = LRx + t*(URx - LRx);
+        var RightRowY = LRy + t*(URy - LRy); 
+        //var RightRowX = LRz + t*(URz - LRz);  //not required
+    
+        for(var s=0; s<=1; s=s+0.1){
+            var HpX = LeftRowX + s*(RightRowX - LeftRowX);
+            var HpY = LeftRowY + s*(RightRowY - LeftRowY);
+
+            drawPixel(imagedata,HpX,HpY,col);
+        }
+    }
+    context.putImageData(imagedata,0,0);
+}
+
+
+//--------------------------------------------------------------------------//
+
+
 /* main -- here is where execution begins after window load */
 
 function main() {
@@ -208,4 +245,7 @@ function main() {
       
     drawInputSpheresUsingArcs(context);
       // shows how to read input file, but not how to draw pixels
+
+     drawWindowPixels(context);
+      // draws the window pixels grid 
 }
