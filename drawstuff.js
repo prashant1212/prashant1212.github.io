@@ -197,7 +197,7 @@ function main() {
 
     // Get the canvas and context
     var canvas = document.getElementById("viewport"); 
-    var context = canvas.getContext("2d");
+    var context = canvas.getContext("3d");
  
     // Create the image
     //drawRandPixels(context);
