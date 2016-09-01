@@ -191,19 +191,34 @@ function drawInputSpheresUsingArcs(context) {
 //--------------------------------------------------------------------------//
 // MY CODE GOES HERE //
 
+function findIntersection(px, py, pz, cx, cy, cz, r){
+    var ex=0.5; var ey=0.5; var ez = -0.5;
+
+    //defining a,b and c of quad eqn
+    var a = (px-ex)*(px-ex) + (py-ey)*(py-ey) + (pz-ez)*(pz-ez); //dot(D,D) = dot(P-E)
+    var b = 2*((px-ex)*(ex-cx) + (py-ey)*(ey-cy) + (pz-ez)*(ez-cz)); //2*dot(D,E-C)
+    var c = (ex-cx)*(ex-cx) + (ey-cy)*(ey-cy) + (ez-cz)*(ez-cz) - r*r; //dot(E-C,E-C)
+
+    var des = b*b - 4*a*c;
+    if (des >= 0)
+        return true;
+    else
+        return false;
+}
+
 
 //draws the grid of pixels on the window
-function drawWindowPixels(context){
+function drawSpherePixels(context, cx, cy, cz, radius){
     var col = new Color(0,0,0,255);
     var w = context.canvas.width;
     var h = context.canvas.height;
     var imagedata = context.createImageData(w,h);
-    
+
     var LLx = 0; var LLy = 0; var LLz = 0;
     var ULx = 0; var ULy = 1; var ULz = 0;
     var URx = 1; var URy = 1; var URz = 0;
     var LRx = 1; var LRy = 0; var LRz = 0;
-    for(var t=0; t<=1; t=t+0.01){
+    for(var t=0; t<=1; t=t+0.005){
         var LeftRowX = LLx + t*(ULx - LLx);
         var LeftRowY = LLy + t*(ULy - LLy);
         //var LeftRowX = LLz + t*(ULz - LLz);  //not required
@@ -212,16 +227,20 @@ function drawWindowPixels(context){
         var RightRowY = LRy + t*(URy - LRy); 
         //var RightRowX = LRz + t*(URz - LRz);  //not required
         
-        for(var s=0; s<=1; s=s+0.01){
-            var HpX = Math.floor((LeftRowX + s*(RightRowX - LeftRowX))*w);
-            var HpY = Math.floor((LeftRowY + s*(RightRowY - LeftRowY))*h);
-            var a = Math.floor(Math.random()*w);
-            var b = Math.floor(Math.random()*h)
-            console.log("HpX:"+HpX+"  HpY:"+HpY);
-            
-            drawPixel(imagedata,HpX,HpY,col);
-            
-            //now for each pixel check for the intersection with the spheres
+        for(var s=0; s<=1; s=s+0.005){
+            //var px = Math.floor((LeftRowX + s*(RightRowX - LeftRowX))*w);
+            //var py = Math.floor((LeftRowY + s*(RightRowY - LeftRowY))*h);
+            var px = LeftRowX + s*(RightRowX - LeftRowX);
+            var py = LeftRowY + s*(RightRowY - LeftRowY);
+            var pz = 0;
+            //console.log("HpX:"+HpX+"  HpY:"+HpY);
+            var flag = findIntersection(px, py, pz, cx, cy, cz, radius);
+            if(flag){
+                px = Math.floor(px*w);
+                py = Math.floor(py*h);
+                drawPixel(imagedata,px,py,col);
+                console.log(px +" , " + py);
+            }
         }
     }
     
@@ -237,6 +256,26 @@ function drawWindowPixels(context){
     context.putImageData(imagedata,0,0);
 }
 
+
+//loop over the spheres and draw them 
+function drawSpheres(context){
+    //read the sphere file
+    var inputSpheres = getInputSpheres();
+    if (inputSpheres != String.null) { 
+        var cx = 0; var cy = 0; var cz = 0; // init center x and y coord
+        var radius = 0; // init sphere radius
+        var n = inputSpheres.length;
+        for(var s=0;s<n;s++){
+            cx = inputSpheres[s].x; // sphere center x
+            cy = inputSpheres[s].y; // sphere center y
+            cz = inputSpheres[s].z; // sphere center z
+            radius = inputSpheres[s].r; // radius
+
+            //draw the pixels for sphere
+            drawSpherePixels(context, cx, cy, cz, radius);
+        }
+    }
+}
 
 //--------------------------------------------------------------------------//
 
@@ -262,5 +301,5 @@ function main() {
      //drawSinglePixel(context);
       // draws the window pixels grid 
 
-     drawWindowPixels(context);
+     drawSpheres(context);
 }
