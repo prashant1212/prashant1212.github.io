@@ -243,7 +243,7 @@ function main() {
     //drawRandPixelsInInputSpheres(context);
       // shows how to draw pixels and read input file
       
-    drawInputSpheresUsingArcs(context);
+    //drawInputSpheresUsingArcs(context);
       // shows how to read input file, but not how to draw pixels
 
      drawWindowPixels(context);
