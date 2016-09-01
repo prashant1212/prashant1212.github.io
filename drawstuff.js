@@ -209,15 +209,15 @@ function drawWindowPixels(context){
         var LeftRowX = LLx + t*(ULx - LLx);
         var LeftRowY = LLy + t*(ULy - LLy);
         //var LeftRowX = LLz + t*(ULz - LLz);  //not required
-
+        alert(LeftRowX + "," + LeftRowY);
         var RightRowX = LRx + t*(URx - LRx);
         var RightRowY = LRy + t*(URy - LRy); 
         //var RightRowX = LRz + t*(URz - LRz);  //not required
-    
+        alert(RightRowX + "," + RightRowY);
         for(var s=0; s<=1; s=s+0.1){
             var HpX = LeftRowX + s*(RightRowX - LeftRowX);
             var HpY = LeftRowY + s*(RightRowY - LeftRowY);
-            alert(HpX + "," + HpY);
+
             drawPixel(imagedata,HpX,HpY,col);
         }
     }
