@@ -60,6 +60,28 @@ function main() {
       // shows how to read input file, but not how to draw pixels
 }
 
+// draw a pixel at x,y using color
+function drawPixel(imagedata,x,y,color) {
+    try {
+        if ((typeof(x) !== "number") || (typeof(y) !== "number"))
+            throw "drawpixel location not a number";
+        else if ((x<0) || (y<0) || (x>=imagedata.width) || (y>=imagedata.height))
+            throw "drawpixel location outside of image";
+        else if (color instanceof Color) {
+            var pixelindex = (y*imagedata.width + x) * 4;
+            imagedata.data[pixelindex] = color.r;
+            imagedata.data[pixelindex+1] = color.g;
+            imagedata.data[pixelindex+2] = color.b;
+            imagedata.data[pixelindex+3] = color.a;
+        } else 
+            throw "drawpixel color is not a Color";
+    } // end try
+    
+    catch(e) {
+        console.log(e);
+    }
+} // end drawPixel
+
 // draw random pixels
 function drawRandPixels(context) {
     var c = new Color(0,0,0,0); // the color at the pixel: probably red
