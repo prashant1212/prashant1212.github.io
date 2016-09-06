@@ -109,7 +109,7 @@ function drawRandPixelsInInputSpheres(context) {
     var w = context.canvas.width;
     var h = context.canvas.height;
     var imagedata = context.createImageData(w,h);
-    const PIXEL_DENSITY = 0.1;
+    const PIXEL_DENSITY = 100;
     var numCanvasPixels = (w*h)*PIXEL_DENSITY; 
     
     if (inputSpheres != String.null) { 
@@ -191,6 +191,60 @@ function drawInputSpheresUsingArcs(context) {
 //--------------------------------------------------------------------------//
 // MY CODE GOES HERE //
 
+
+//Global variables//
+var LLx = 0; var LLy = 0; var LLz = 0;
+var ULx = 0; var ULy = 1; var ULz = 0;
+var URx = 1; var URy = 1; var URz = 0;
+var LRx = 1; var LRy = 0; var LRz = 0;
+
+
+function getColorForSphere(inputSphere, px, py, pz, cx, cy, cz, r){
+    var La = 1; var Ld = 1; var Ls = 1;
+    var Kar = inputSphere.ambient[0];    var Kag = inputSphere.ambient[1];    var Kab = inputSphere.ambient[2];
+    var Kdr = inputSphere.diffuse[0];    var Kdg = inputSphere.diffuse[1];    var Kdb = inputSphere.diffuse[2];
+    var Ksr = inputSphere.specular[0];    var Ksg = inputSphere.specular[1];    var Ksb = inputSphere.specular[2];
+
+    var lx = 2; var ly = 4; var lz = -0.5; //white light location
+
+    //calculate diffused light Ld.Kd(N.L)
+    //Normal Vector N
+    var Nvec = Vector.create([px-cx,py-cy,pz-cz]);
+    var N = Nvec.toUnitVector();
+    //L vector from surface to light
+    var L = (Vector.create([lx-px,ly-py,lz-pz])).toUnitVector();
+
+    //ambient color
+    var ambR = Kar*La;
+    var ambG = Kag*La;
+    var ambB = Kab*La;
+
+    //diffused color
+    var diffRed = Kdr*Ld*(N.dot(L));
+    var diffGreen = Kdg*Ld*(N.dot(L));
+    var diffBlue = Kdb*Ld*(N.dot(L));
+
+    //calculate specular light Ls.Ks.(N.H)^n --- H=L+V/2
+    //specular color
+    var V = (Vector.create([0.5-px,0.5-py,-05-pz])).toUnitVector(); //vector from pixel to eye
+    var H = (L.add(V)).toUnitVector();
+    var sdt = Math.pow(N.dot(H),5); //exponent of n
+    //specular color
+    var specR = Ksr*Ls*sdt;
+    var specG = Ksg*Ls*sdt;
+    var specB = Ksb*Ls*sdt;
+
+    //adding the A+D+S for each color
+    var ColR = ambR+diffRed+specR;
+    var ColG = ambG+diffGreen+specG;
+    var ColB = ambB+diffBlue+specB;
+
+    //console.log(ColR+","+ColG+","+ColB);
+    //return the color object
+    var cOb = new Color(ColR*255,ColG*255,ColB*255,255);
+    return cOb;
+}
+
 function findIntersection(px, py, pz, cx, cy, cz, r){
     var ex=0.5; var ey=0.5; var ez = -0.5;
 
@@ -198,67 +252,70 @@ function findIntersection(px, py, pz, cx, cy, cz, r){
     var a = (px-ex)*(px-ex) + (py-ey)*(py-ey) + (pz-ez)*(pz-ez); //dot(D,D) = dot(P-E)
     var b = 2*((px-ex)*(ex-cx) + (py-ey)*(ey-cy) + (pz-ez)*(ez-cz)); //2*dot(D,E-C)
     var c = (ex-cx)*(ex-cx) + (ey-cy)*(ey-cy) + (ez-cz)*(ez-cz) - r*r; //dot(E-C,E-C)
-
+    console.log("b:"+b);
     var des = b*b - 4*a*c;
-    if (des >= 0)
-        return true;
+    if (des >= 0){
+        var t1 = (-b+Math.sqrt(des))/(2*a);
+        var t2 = (-b-Math.sqrt(des))/(2*a);
+        var t;
+        if(t1<t2)
+            t=t1;
+        else
+            t=t2;
+
+        //point of intersection
+        var PintX = ex+t*(px-ex);
+        var PintY = ey+t*(py-ey);
+        var PintZ = ez+t*(pz-ez); 
+        var arr = [PintX,PintY,PintZ];
+        return arr;
+    }
     else
-        return false;
+        return null;
 }
 
 
 //draws the grid of pixels on the window
-function drawSpherePixels(context, cx, cy, cz, radius){
+function drawSpherePixels(context, cx, cy, cz, radius, imagedata, inputSphere){
     var col = new Color(0,0,0,255);
     var w = context.canvas.width;
     var h = context.canvas.height;
-    var imagedata = context.createImageData(w,h);
 
-    var LLx = 0; var LLy = 0; var LLz = 0;
-    var ULx = 0; var ULy = 1; var ULz = 0;
-    var URx = 1; var URy = 1; var URz = 0;
-    var LRx = 1; var LRy = 0; var LRz = 0;
-    for(var t=0; t<=1; t=t+0.005){
+    for(var t=0; t<=1; t=t+0.01){
         var LeftRowX = LLx + t*(ULx - LLx);
         var LeftRowY = LLy + t*(ULy - LLy);
-        //var LeftRowX = LLz + t*(ULz - LLz);  //not required
+        //var LeftRowZ = LLz + t*(ULz - LLz);  //not required
         
         var RightRowX = LRx + t*(URx - LRx);
         var RightRowY = LRy + t*(URy - LRy); 
-        //var RightRowX = LRz + t*(URz - LRz);  //not required
+        //var RightRowZ = LRz + t*(URz - LRz);  //not required
         
-        for(var s=0; s<=1; s=s+0.005){
+        for(var s=0; s<=1; s=s+0.01){
             //var px = Math.floor((LeftRowX + s*(RightRowX - LeftRowX))*w);
             //var py = Math.floor((LeftRowY + s*(RightRowY - LeftRowY))*h);
             var px = LeftRowX + s*(RightRowX - LeftRowX);
             var py = LeftRowY + s*(RightRowY - LeftRowY);
             var pz = 0;
-            //console.log("HpX:"+HpX+"  HpY:"+HpY);
-            var flag = findIntersection(px, py, pz, cx, cy, cz, radius);
-            if(flag){
-                px = Math.floor(px*w);
-                py = Math.floor(py*h);
-                drawPixel(imagedata,px,py,col);
-                console.log(px +" , " + py);
+            
+            var poi = findIntersection(px, py, pz, cx, cy, cz, radius);
+            if(poi != null){
+                //console.log(poi);
+                col = getColorForSphere(inputSphere, poi[0], poi[1], poi[2], cx, cy, cz, radius);
+                //console.log("pX:"+px+"  pY:"+py);
+                drawPixel(imagedata,Math.floor(px*w),Math.floor(py*h),col);
+                //console.log(px +" , " + py);
             }
         }
     }
-    
-
-    /*for(var i=0;i<=512;i=i+10){
-        for(var j=0;j<=512;j=j+10){
-            col.change(Math.random()*255,Math.random()*255,Math.random()*255,255); // rand color
-            console.log(i+","+j);
-            drawPixel(imagedata,i,j,col);
-        }
-    }*/
-
     context.putImageData(imagedata,0,0);
 }
 
 
 //loop over the spheres and draw them 
 function drawSpheres(context){
+    var w = context.canvas.width;
+    var h = context.canvas.height;
+    var imagedata = context.createImageData(w,h);
     //read the sphere file
     var inputSpheres = getInputSpheres();
     if (inputSpheres != String.null) { 
@@ -272,7 +329,7 @@ function drawSpheres(context){
             radius = inputSpheres[s].r; // radius
 
             //draw the pixels for sphere
-            drawSpherePixels(context, cx, cy, cz, radius);
+            drawSpherePixels(context, cx, cy, cz, radius, imagedata, inputSpheres[s]);
         }
     }
 }
@@ -287,6 +344,7 @@ function main() {
     // Get the canvas and context
     var canvas = document.getElementById("viewport"); 
     var context = canvas.getContext("2d");
+    canvas.style.backgroundColor = 'rgba(0, 0, 0, 255)';
  
     // Create the image
    // drawRandPixels(context);
@@ -301,5 +359,5 @@ function main() {
      //drawSinglePixel(context);
       // draws the window pixels grid 
 
-     drawSpheres(context);
+    drawSpheres(context);
 }
