@@ -46,10 +46,10 @@ var eye = [0.5,0.5,-0.5];
 var light = [2,4,-0.5];
 //var viewUp = Vector.create([0,1,0]);
 //var lookAt = Vector.create([0,0,1]);
-var LL = [0,0,0];
-var UR = [1,1,0];
-var UL = [0,1,0];
-var LR = [1,0,0];
+var LL = [0,1,0];
+var UR = [1,0,0];
+var UL = [0,0,0];
+var LR = [1,1,0];
 var sphJson = String.null;
 
 //read spheres from the file
@@ -122,25 +122,30 @@ function getColorForPoi(poi,sno,pixel){
 
 	//normal vector
 	var c = [sphJson[sno].x, sphJson[sno].y, sphJson[sno].z];
-	var N = Vector.create([poi[0]-c[0], poi[1]-c[1], poi[2]-c[2]]);
-	N = N.toUnitVector();
+	var N = [poi[0]-c[0], poi[1]-c[1], poi[2]-c[2]];
+	var normalise = Math.sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);
+	N = [N[0]/normalise, N[1]/normalise, N[2]/normalise];
+	
 
 	//L vector from surface to light
-	var L = Vector.create([light[0]-poi[0], light[1]-poi[1], light[2]-poi[2]]);
-	L = L.toUnitVector();
+	var L = [light[0]-poi[0], light[1]-poi[1], light[2]-poi[2]];
+	normalise = Math.sqrt(L[0]*L[0] + L[1]*L[1] + L[2]*L[2]);
+	L = [L[0]/normalise, L[1]/normalise, L[2]/normalise];
+	//console.log(L);
 
 	//ambient color
 	var amb = [Ka[0]*La, Ka[1]*La, Ka[2]*La];
 
 	//diffused color
-	var NdotL = N.dot(L);
+	var NdotL = N[0]*L[0] + N[1]*L[1] + N[2]*L[2];
+	NdotL = Math.max(0,NdotL);
 	var diff = [(Kd[0]*Ld*NdotL), (Kd[1]*Ld*NdotL), (Kd[2]*Ld*NdotL)];
 
 	//calculate specular light Ls.Ks.(N.H)^n --- H=L+V/2
     //specular color
-    var V = (Vector.create([eye[0]-pixel[0], eye[1]-pixel[1], eye[2]-pixel[2]])).toUnitVector(); //vector from pixel to eye
-    var H = (L.add(V)).toUnitVector();
-    var sdt = Math.pow(N.dot(H),5); //exponent of n
+    var V = [eye[0]-poi[0], eye[1]-poi[1], eye[2]-poi[2]]; //vector from pixel to eye
+    var H = [(L[0]+V[0])/2, (L[1]+V[1])/2, (L[2]+V[2])/2];
+    var sdt = Math.pow(N[0]*H[0] + N[1]*H[1] + N[2]*H[2],5); //exponent of n
     //specular color
     var spec = [(Ks[0]*Ls*sdt), (Ks[1]*Ls*sdt), (Ks[2]*Ls*sdt)];
 
@@ -149,7 +154,7 @@ function getColorForPoi(poi,sno,pixel){
 	var colR = amb[0]+diff[0]+spec[0];
 	var colG = amb[1]+diff[1]+spec[1];
 	var colB = amb[2]+diff[2]+spec[2];
-	console.log("R:"+colR*255+" G:"+colG*255+" B:"+colB*255);
+	//console.log("R:"+colR*255+" G:"+colG*255+" B:"+colB*255);
 	var col = new Color(colR*255, colG*255, colB*255,255);
 	
 	return col;
@@ -162,22 +167,26 @@ function loopOverPixels(context){
 	var rightPixel = new Array(3);
 	var pixel = new Array(3);
 	var col;
-	for(var t=0;t<=1;t=t+0.1){
-		leftPixel[0] = LL[0]+t*(UL[0]-LL[0]); leftPixel[1] = LL[1]+t*(UL[1]-LL[1]); leftPixel[2] = LL[2]+t*(UL[2]-LL[2]);
-		rightPixel[0] = LR[0]+t*(UR[0]-LR[0]); rightPixel[1] = LR[1]+t*(UR[1]-LR[1]); rightPixel[2] = LR[2]+t*(UR[2]-LR[2]);
-		for(var s=0;s<=1;s=s+0.1){
+	for(var t=0;t<=1;t=t+0.001){
+		//leftPixel[0] = LL[0]+t*(UL[0]-LL[0]); leftPixel[1] = LL[1]+t*(UL[1]-LL[1]); leftPixel[2] = LL[2]+t*(UL[2]-LL[2]);
+		leftPixel[0] = UL[0]+t*(LL[0]-UL[0]); leftPixel[1] = UL[1]+t*(LL[1]-UL[1]); leftPixel[2] = UL[2]+t*(LL[2]-UL[2]);
+		//rightPixel[0] = LR[0]+t*(UR[0]-LR[0]); rightPixel[1] = LR[1]+t*(UR[1]-LR[1]); rightPixel[2] = LR[2]+t*(UR[2]-LR[2]);
+		rightPixel[0] = UR[0]+t*(LR[0]-UR[0]); rightPixel[1] = UR[1]+t*(LR[1]-UR[1]); rightPixel[2] = UR[2]+t*(LR[2]-UR[2]);
+		for(var s=0;s<=1;s=s+0.001){
 			pixel[0] = leftPixel[0]+s*(rightPixel[0]-leftPixel[0]);
 			pixel[1] = leftPixel[1]+s*(rightPixel[1]-leftPixel[1]);
 			pixel[2] = leftPixel[2]+s*(rightPixel[2]-leftPixel[2]);
+			//console.log(pixel);
 			//now for each pixel, iterate over each sphere to find the intersection
-			var poinSph = findIntersection(pixel); 
-			if(poinSph != String.null){
+			var poinSph = findIntersection(pixel);  //console.log(poinSph); 
+			if(poinSph != undefined && poinSph != String.null){
 				var poi = poinSph[0];
 				var sno = poinSph[1];
 				col = getColorForPoi(poi,sno,pixel);
+				//col= new Color(255,255,255,255);
             }
             else{
-            	col = new Color(1,1,1,255); 
+            	col = new Color(0,0,0,255); 
             }
             			//drawing the pixel	
 			var pixelindex = ((Math.floor(pixel[1]*600))*600 + (Math.floor(pixel[0]*600))) * 4;
