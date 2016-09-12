@@ -42,6 +42,8 @@ class Color {
 
 
 //Global variables//
+var w = 600;
+var h = 600;
 var eye = [0.5,0.5,-0.5];
 var light = [2,4,-0.5];
 //var viewUp = Vector.create([0,1,0]);
@@ -51,6 +53,28 @@ var UR = [1,0,0];
 var UL = [0,0,0];
 var LR = [1,1,0];
 var sphJson = String.null;
+
+// draw a pixel at x,y using color
+function drawPixel(imagedata,x,y,color) {
+    try {
+        if ((typeof(x) !== "number") || (typeof(y) !== "number"))
+            throw "drawpixel location not a number";
+        else if ((x<0) || (y<0) || (x>=imagedata.width) || (y>=imagedata.height))
+            throw "drawpixel location outside of image";
+        else if (color instanceof Color) {
+            var pixelindex = (y*imagedata.width + x) * 4;
+            imagedata.data[pixelindex] = color.r;
+            imagedata.data[pixelindex+1] = color.g;
+            imagedata.data[pixelindex+2] = color.b;
+            imagedata.data[pixelindex+3] = color.a;
+        } else 
+            throw "drawpixel color is not a Color";
+    } // end try
+    
+    catch(e) {
+        console.log(e);
+    }
+} // end drawPixel
 
 //read spheres from the file
 // get the input spheres from the standard class URL
@@ -162,7 +186,7 @@ function getColorForPoi(poi,sno,pixel){
 
 //draw pixels on the window
 function loopOverPixels(context){
-	var imagedata = context.createImageData(600,600);
+	var imagedata = context.createImageData(w,h);
 	var leftPixel = new Array(3);
 	var rightPixel = new Array(3);
 	var pixel = new Array(3);
@@ -189,23 +213,38 @@ function loopOverPixels(context){
             	col = new Color(0,0,0,255); 
             }
             			//drawing the pixel	
-			var pixelindex = ((Math.floor(pixel[1]*600))*600 + (Math.floor(pixel[0]*600))) * 4;
+            drawPixel(imagedata, Math.floor(pixel[1]*w), h-Math.floor(pixel[0]*h),col);			
+			/*var pixelindex = ((Math.floor(pixel[1]*600))*600 + (Math.floor(pixel[0]*600))) * 4;
             imagedata.data[pixelindex] = col.r;
             imagedata.data[pixelindex+1] = col.g;
             imagedata.data[pixelindex+2] = col.b;
-            imagedata.data[pixelindex+3] = 255;
+            imagedata.data[pixelindex+3] = 255;*/
 		}
 	}
 	context.putImageData(imagedata,0,0);	
 }
 
-//
+//setting canvas size
+function setCanvasSize(){
+	if(document.getElementById('canvasW').text != ''){
+		w = parseInt(document.getElementById('canvasW').value);
+		document.getElementById('viewport').width=w;
+	}
+	else
+		w=600;
+	if(document.getElementById('canvasH').text != ''){
+		h = parseInt(document.getElementById('canvasH').value);
+		document.getElementById('viewport').height=h;
+	}
+	else
+		h=600;
+}
 
 //main method
 function main(){
 	var canvas = document.getElementById("viewport");
 	var context = canvas.getContext("2d");
-	//canvas.style.backgroundColor = 'rgba(0, 0, 0, 255)';
+	setCanvasSize();
 	//getTheSpheres
 	getInputSpheres();
 	loopOverPixels(context)
