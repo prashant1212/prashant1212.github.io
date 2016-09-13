@@ -44,8 +44,8 @@ class Color {
 //Global variables//
 var w = 600;
 var h = 600;
-var eye = [0.5,0.5,-0.5];
-var light = [2,4,-0.5];
+var eye = [0.5,0.5,-0.50];
+var light = [1,1,-0.5];
 //var viewUp = Vector.create([0,1,0]);
 //var lookAt = Vector.create([0,0,1]);
 var LL = [0,1,0];
@@ -80,7 +80,7 @@ function drawPixel(imagedata,x,y,color) {
 // get the input spheres from the standard class URL
 function getInputSpheres() {
     const INPUT_SPHERES_URL = 
-        "https://prashant1212.github.io/SphereFiles/spheres.json";
+        "https://prashant1212.github.io/InputFiles/spheres.json";
         
     // load the spheres file
     var httpReq = new XMLHttpRequest(); // a new http request
@@ -169,7 +169,7 @@ function getColorForPoi(poi,sno,pixel){
     //specular color
     var V = [eye[0]-poi[0], eye[1]-poi[1], eye[2]-poi[2]]; //vector from pixel to eye
     var H = [(L[0]+V[0])/2, (L[1]+V[1])/2, (L[2]+V[2])/2];
-    var sdt = Math.pow(N[0]*H[0] + N[1]*H[1] + N[2]*H[2],5); //exponent of n
+    var sdt = Math.pow(N[0]*H[0] + N[1]*H[1] + N[2]*H[2],10); //exponent of n
     //specular color
     var spec = [(Ks[0]*Ls*sdt), (Ks[1]*Ls*sdt), (Ks[2]*Ls*sdt)];
 
