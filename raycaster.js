@@ -176,6 +176,10 @@ function getColorForPoi(poi,sno,pixel){
 	N = [N[0]/normalise, N[1]/normalise, N[2]/normalise];
 	
 	for(var l=0;l<lgtJson.length;l++){
+		//returns if this point of intersection is shadowed
+		var isShadowed = isPointShadowed(poi, lgtJson[l]);
+		console.log("isShadowed: "+isShadowed);
+
 		var light = [lgtJson[l].x, lgtJson[l].y, lgtJson[l].z];
 		var La= lgtJson[l].ambient; var Ld=lgtJson[l].diffuse; var Ls=lgtJson[l].specular;
 		//L vector from surface to light
@@ -188,20 +192,25 @@ function getColorForPoi(poi,sno,pixel){
 		var amb = [Ka[0]*La[0], Ka[1]*La[1], Ka[2]*La[2]];
 
 		//diffused color
-		var NdotL = N[0]*L[0] + N[1]*L[1] + N[2]*L[2];
-		NdotL = Math.max(0,NdotL);
-		var diff = [(Kd[0]*Ld[0]*NdotL), (Kd[1]*Ld[1]*NdotL), (Kd[2]*Ld[2]*NdotL)];
+		var diff = [0,0,0];
+		if(!isShadowed){
+			var NdotL = N[0]*L[0] + N[1]*L[1] + N[2]*L[2];
+			NdotL = Math.max(0,NdotL);
+			diff = [(Kd[0]*Ld[0]*NdotL), (Kd[1]*Ld[1]*NdotL), (Kd[2]*Ld[2]*NdotL)];
+		}
 
 		//calculate specular light Ls.Ks.(N.H)^n --- H=L+V/2
 	    //specular color
-	    var V = [eye[0]-poi[0], eye[1]-poi[1], eye[2]-poi[2]]; //vector from pixel to eye
-	    //length of L+V
-	    var normLV = Math.sqrt((L[0]+V[0])*(L[0]+V[0]) + (L[1]+V[1])*(L[1]+V[1]) + (L[2]+V[2])*(L[2]+V[2]))
-	    var H = [(L[0]+V[0])/normLV, (L[1]+V[1])/normLV, (L[2]+V[2])/normLV];
-	    var sdt = Math.pow(N[0]*H[0] + N[1]*H[1] + N[2]*H[2],10); //exponent of n
-	    //specular color
-	    var spec = [(Ks[0]*Ls[0]*sdt), (Ks[1]*Ls[1]*sdt), (Ks[2]*Ls[2]*sdt)];
-
+	    var spec = [0,0,0];
+	    if(!isShadowed){
+	    	var V = [eye[0]-poi[0], eye[1]-poi[1], eye[2]-poi[2]]; //vector from pixel to eye
+	    	//length of L+V
+	    	var normLV = Math.sqrt((L[0]+V[0])*(L[0]+V[0]) + (L[1]+V[1])*(L[1]+V[1]) + (L[2]+V[2])*(L[2]+V[2]))
+	    	var H = [(L[0]+V[0])/normLV, (L[1]+V[1])/normLV, (L[2]+V[2])/normLV];
+	    	var sdt = Math.pow(N[0]*H[0] + N[1]*H[1] + N[2]*H[2],10); //exponent of n
+	    	//specular color
+	    	spec = [(Ks[0]*Ls[0]*sdt), (Ks[1]*Ls[1]*sdt), (Ks[2]*Ls[2]*sdt)];
+		}
 
 		//Adding A+D+S
 		colR += amb[0]+diff[0]+spec[0];
@@ -252,6 +261,23 @@ function loopOverPixels(context){
 		}
 	}
 	context.putImageData(imagedata,0,0);	
+}
+
+function isPointShadowed(poi, light){
+	//loop over all the spheres and check if the ray to light intersects any of these spheres
+	for(var s=0;s<sphJson.length;s++){
+		var centre = [sphJson[s].x,sphJson[s].y,sphJson[s].z];
+		var D = Vector.create([light[0]-poi[0], light[1]-poi[1], light[2]-poi[2]]); //D=L-P
+		var PC = Vector.create([poi[0]-centre[0], poi[1]-centre[1], poi[2]-centre[2]]);
+		var a = D.dot(D);	
+		var b = 2*(D.dot(PC));
+		var c = PC.dot(PC)-(Math.pow(sphJson[s].r,2));
+		var det = b*b - 4*a*c;
+		if(det >= 0)
+			return true;
+		else
+			return false;
+	}
 }
 
 //setting canvas size
