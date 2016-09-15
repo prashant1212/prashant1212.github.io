@@ -176,11 +176,12 @@ function getColorForPoi(poi,sno,pixel){
 	N = [N[0]/normalise, N[1]/normalise, N[2]/normalise];
 	
 	for(var l=0;l<lgtJson.length;l++){
+		
+		var light = [lgtJson[l].x, lgtJson[l].y, lgtJson[l].z];
 		//returns if this point of intersection is shadowed
-		var isShadowed = isPointShadowed(poi, lgtJson[l]);
+		var isShadowed = isPointShadowed(poi, light);
 		console.log("isShadowed: "+isShadowed);
 
-		var light = [lgtJson[l].x, lgtJson[l].y, lgtJson[l].z];
 		var La= lgtJson[l].ambient; var Ld=lgtJson[l].diffuse; var Ls=lgtJson[l].specular;
 		//L vector from surface to light
 		var L = [light[0]-poi[0], light[1]-poi[1], light[2]-poi[2]];
@@ -216,6 +217,7 @@ function getColorForPoi(poi,sno,pixel){
 		colR += amb[0]+diff[0]+spec[0];
 		colG += amb[1]+diff[1]+spec[1];
 		colB += amb[2]+diff[2]+spec[2];
+		console.log("colR::"+colR);
 	}
 	//console.log("R:"+colR*255+" G:"+colG*255+" B:"+colB*255);
 	var col = new Color(Math.min(colR,1)*255, Math.min(colG,1)*255, Math.min(colB,1)*255,255);
