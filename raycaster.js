@@ -53,6 +53,7 @@ var UR = [1,0,0];
 var UL = [0,0,0];
 var LR = [1,1,0];
 var sphJson = String.null;
+var lgtJson = String.null;
 
 // draw a pixel at x,y using color
 function drawPixel(imagedata,x,y,color) {
@@ -75,6 +76,27 @@ function drawPixel(imagedata,x,y,color) {
         console.log(e);
     }
 } // end drawPixel
+
+//read lights from file lights.json
+function getInputLights(){
+	const INPUT_LIGHTS_URL = 
+		"https://prashant1212.github.io/InputFiles/lights.json";
+
+	// load the spheres file
+    var httpReq = new XMLHttpRequest(); // a new http request
+    httpReq.open("GET",INPUT_LIGHTS_URL,false); // init the request
+    httpReq.send(null); // send the request
+    var startTime = Date.now();
+    while ((httpReq.status !== 200) && (httpReq.readyState !== XMLHttpRequest.DONE)) {
+        if ((Date.now()-startTime) > 3000)
+            break;
+    } // until its loaded or we time out after three seconds
+    if ((httpReq.status !== 200) || (httpReq.readyState !== XMLHttpRequest.DONE)) {
+        console.log*("Unable to open input spheres file!");
+        lgtJson = String.null;
+    } else
+        lgtJson = JSON.parse(httpReq.response); 
+} // end get input lights
 
 //read spheres from the file
 // get the input spheres from the standard class URL
@@ -168,7 +190,9 @@ function getColorForPoi(poi,sno,pixel){
 	//calculate specular light Ls.Ks.(N.H)^n --- H=L+V/2
     //specular color
     var V = [eye[0]-poi[0], eye[1]-poi[1], eye[2]-poi[2]]; //vector from pixel to eye
-    var H = [(L[0]+V[0])/2, (L[1]+V[1])/2, (L[2]+V[2])/2];
+    //length of L+V
+    var normLV = Math.sqrt((L[0]+V[0])*(L[0]+V[0]) + (L[1]+V[1])*(L[1]+V[1]) + (L[2]+V[2])*(L[2]+V[2]))
+    var H = [(L[0]+V[0])/normLV, (L[1]+V[1])/normLV, (L[2]+V[2])/normLV];
     var sdt = Math.pow(N[0]*H[0] + N[1]*H[1] + N[2]*H[2],10); //exponent of n
     //specular color
     var spec = [(Ks[0]*Ls*sdt), (Ks[1]*Ls*sdt), (Ks[2]*Ls*sdt)];
