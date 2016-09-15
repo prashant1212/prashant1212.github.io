@@ -45,7 +45,7 @@ class Color {
 var w = 600;
 var h = 600;
 var eye = [0.5,0.5,-0.50];
-var light = [1,1,-0.5];
+//var light = [1,1,-0.5];
 //var viewUp = Vector.create([0,1,0]);
 //var lookAt = Vector.create([0,0,1]);
 var LL = [0,1,0];
@@ -161,7 +161,10 @@ function findIntersection(pixel){
 
 //get the color on the point of intersection
 function getColorForPoi(poi,sno,pixel){
-	var La=1; var Ld=1; var Ls=1;
+	var colR = 0;
+	var colG = 0;
+	var colB = 0;
+	
 	var Ka = [sphJson[sno].ambient[0], sphJson[sno].ambient[1], sphJson[sno].ambient[2]]; //Ka ambient for sphere[sno] in the order RGB
 	var Kd = [sphJson[sno].diffuse[0], sphJson[sno].diffuse[1], sphJson[sno].diffuse[2]];
 	var Ks = [sphJson[sno].specular[0], sphJson[sno].specular[1], sphJson[sno].specular[2]];
@@ -172,38 +175,41 @@ function getColorForPoi(poi,sno,pixel){
 	var normalise = Math.sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);
 	N = [N[0]/normalise, N[1]/normalise, N[2]/normalise];
 	
+	for(var l=0;l<lgtJson.length;l++){
+		var light = [lgtJson[l].x, lgtJson[l].y, lgtJson[l].z];
+		var La= lgtJson[l].ambient; var Ld=lgtJson[l].diffuse; var Ls=lgtJson[l].specular;
+		//L vector from surface to light
+		var L = [light[0]-poi[0], light[1]-poi[1], light[2]-poi[2]];
+		normalise = Math.sqrt(L[0]*L[0] + L[1]*L[1] + L[2]*L[2]);
+		L = [L[0]/normalise, L[1]/normalise, L[2]/normalise];
+		//console.log(L);
 
-	//L vector from surface to light
-	var L = [light[0]-poi[0], light[1]-poi[1], light[2]-poi[2]];
-	normalise = Math.sqrt(L[0]*L[0] + L[1]*L[1] + L[2]*L[2]);
-	L = [L[0]/normalise, L[1]/normalise, L[2]/normalise];
-	//console.log(L);
+		//ambient color
+		var amb = [Ka[0]*La[0], Ka[1]*La[1], Ka[2]*La[2]];
 
-	//ambient color
-	var amb = [Ka[0]*La, Ka[1]*La, Ka[2]*La];
+		//diffused color
+		var NdotL = N[0]*L[0] + N[1]*L[1] + N[2]*L[2];
+		NdotL = Math.max(0,NdotL);
+		var diff = [(Kd[0]*Ld[0]*NdotL), (Kd[1]*Ld[1]*NdotL), (Kd[2]*Ld[2]*NdotL)];
 
-	//diffused color
-	var NdotL = N[0]*L[0] + N[1]*L[1] + N[2]*L[2];
-	NdotL = Math.max(0,NdotL);
-	var diff = [(Kd[0]*Ld*NdotL), (Kd[1]*Ld*NdotL), (Kd[2]*Ld*NdotL)];
-
-	//calculate specular light Ls.Ks.(N.H)^n --- H=L+V/2
-    //specular color
-    var V = [eye[0]-poi[0], eye[1]-poi[1], eye[2]-poi[2]]; //vector from pixel to eye
-    //length of L+V
-    var normLV = Math.sqrt((L[0]+V[0])*(L[0]+V[0]) + (L[1]+V[1])*(L[1]+V[1]) + (L[2]+V[2])*(L[2]+V[2]))
-    var H = [(L[0]+V[0])/normLV, (L[1]+V[1])/normLV, (L[2]+V[2])/normLV];
-    var sdt = Math.pow(N[0]*H[0] + N[1]*H[1] + N[2]*H[2],10); //exponent of n
-    //specular color
-    var spec = [(Ks[0]*Ls*sdt), (Ks[1]*Ls*sdt), (Ks[2]*Ls*sdt)];
+		//calculate specular light Ls.Ks.(N.H)^n --- H=L+V/2
+	    //specular color
+	    var V = [eye[0]-poi[0], eye[1]-poi[1], eye[2]-poi[2]]; //vector from pixel to eye
+	    //length of L+V
+	    var normLV = Math.sqrt((L[0]+V[0])*(L[0]+V[0]) + (L[1]+V[1])*(L[1]+V[1]) + (L[2]+V[2])*(L[2]+V[2]))
+	    var H = [(L[0]+V[0])/normLV, (L[1]+V[1])/normLV, (L[2]+V[2])/normLV];
+	    var sdt = Math.pow(N[0]*H[0] + N[1]*H[1] + N[2]*H[2],10); //exponent of n
+	    //specular color
+	    var spec = [(Ks[0]*Ls[0]*sdt), (Ks[1]*Ls[1]*sdt), (Ks[2]*Ls[2]*sdt)];
 
 
-	//Adding A+D+S
-	var colR = amb[0]+diff[0]+spec[0];
-	var colG = amb[1]+diff[1]+spec[1];
-	var colB = amb[2]+diff[2]+spec[2];
+		//Adding A+D+S
+		colR += amb[0]+diff[0]+spec[0];
+		colG += amb[1]+diff[1]+spec[1];
+		colB += amb[2]+diff[2]+spec[2];
+	}
 	//console.log("R:"+colR*255+" G:"+colG*255+" B:"+colB*255);
-	var col = new Color(colR*255, colG*255, colB*255,255);
+	var col = new Color(Math.min(colR,1)*255, Math.min(colG,1)*255, Math.min(colB,1)*255,255);
 	
 	return col;
 }
@@ -271,5 +277,6 @@ function main(){
 	setCanvasSize();
 	//getTheSpheres
 	getInputSpheres();
+	getInputLights();
 	loopOverPixels(context)
 }
