@@ -179,8 +179,7 @@ function getColorForPoi(poi,sno,pixel){
 		
 		var light = [lgtJson[l].x, lgtJson[l].y, lgtJson[l].z];
 		//returns if this point of intersection is shadowed
-		var isShadowed = isPointShadowed(poi, light);
-		console.log("isShadowed: "+isShadowed);
+		var isShadowed = isPointShadowed(poi, sno, light);
 
 		var La= lgtJson[l].ambient; var Ld=lgtJson[l].diffuse; var Ls=lgtJson[l].specular;
 		//L vector from surface to light
@@ -217,7 +216,6 @@ function getColorForPoi(poi,sno,pixel){
 		colR += amb[0]+diff[0]+spec[0];
 		colG += amb[1]+diff[1]+spec[1];
 		colB += amb[2]+diff[2]+spec[2];
-		console.log("colR::"+colR);
 	}
 	//console.log("R:"+colR*255+" G:"+colG*255+" B:"+colB*255);
 	var col = new Color(Math.min(colR,1)*255, Math.min(colG,1)*255, Math.min(colB,1)*255,255);
@@ -247,6 +245,7 @@ function loopOverPixels(context){
 			if(poinSph != undefined && poinSph != String.null){
 				var poi = poinSph[0];
 				var sno = poinSph[1];
+
 				col = getColorForPoi(poi,sno,pixel);
 				//col= new Color(255,255,255,255);
             }
@@ -254,8 +253,8 @@ function loopOverPixels(context){
             	col = new Color(0,0,0,255); 
             }
             			//drawing the pixel	
-            drawPixel(imagedata, Math.floor(pixel[1]*w), h-Math.floor(pixel[0]*h),col);			
-			/*var pixelindex = ((Math.floor(pixel[1]*600))*600 + (Math.floor(pixel[0]*600))) * 4;
+            drawPixel(imagedata, Math.floor(pixel[1]*w), Math.floor(pixel[0]*h),col);	
+          	/*var pixelindex = ((Math.floor(pixel[1]*600))*600 + (Math.floor(pixel[0]*600))) * 4;
             imagedata.data[pixelindex] = col.r;
             imagedata.data[pixelindex+1] = col.g;
             imagedata.data[pixelindex+2] = col.b;
@@ -265,8 +264,9 @@ function loopOverPixels(context){
 	context.putImageData(imagedata,0,0);	
 }
 
-function isPointShadowed(poi, light){
+function isPointShadowed(poi, sno, light){
 	//loop over all the spheres and check if the ray to light intersects any of these spheres
+	var flag = false;
 	for(var s=0;s<sphJson.length;s++){
 		var centre = [sphJson[s].x,sphJson[s].y,sphJson[s].z];
 		var D = Vector.create([light[0]-poi[0], light[1]-poi[1], light[2]-poi[2]]); //D=L-P
@@ -275,11 +275,14 @@ function isPointShadowed(poi, light){
 		var b = 2*(D.dot(PC));
 		var c = PC.dot(PC)-(Math.pow(sphJson[s].r,2));
 		var det = b*b - 4*a*c;
-		if(det >= 0)
-			return true;
-		else
-			return false;
+		if(det >= 0){
+			var t1 = (-b+Math.sqrt(det))/(2*a);
+        	var t2 = (-b-Math.sqrt(det))/(2*a);
+        	if((t1 > 0 && t1<1) && (t2>0 && t2<1))
+				flag = true;
+		}
 	}
+	return flag;
 }
 
 //setting canvas size
