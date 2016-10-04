@@ -45,7 +45,8 @@ class Color {
 var w = 600;
 var h = 600;
 var eye = [0.5,0.5,-0.50];
-//var light = [1,1,-0.5];
+var sphereURL= "";
+var lightURL = "";
 //var viewUp = Vector.create([0,1,0]);
 //var lookAt = Vector.create([0,0,1]);
 var LL = [0,1,0];
@@ -79,10 +80,8 @@ function drawPixel(imagedata,x,y,color) {
 
 //read lights from file lights.json
 function getInputLights(){
-	const INPUT_LIGHTS_URL = 
-		"https://prashant1212.github.io/InputFiles/lights.json";
+	const INPUT_LIGHTS_URL = lightURL;
 
-	// load the spheres file
     var httpReq = new XMLHttpRequest(); // a new http request
     httpReq.open("GET",INPUT_LIGHTS_URL,false); // init the request
     httpReq.send(null); // send the request
@@ -92,7 +91,7 @@ function getInputLights(){
             break;
     } // until its loaded or we time out after three seconds
     if ((httpReq.status !== 200) || (httpReq.readyState !== XMLHttpRequest.DONE)) {
-        console.log*("Unable to open input spheres file!");
+        console.log*("Unable to open input lights file!");
         lgtJson = String.null;
     } else
         lgtJson = JSON.parse(httpReq.response); 
@@ -101,8 +100,7 @@ function getInputLights(){
 //read spheres from the file
 // get the input spheres from the standard class URL
 function getInputSpheres() {
-    const INPUT_SPHERES_URL = 
-        "https://prashant1212.github.io/InputFiles/spheres.json";
+    const INPUT_SPHERES_URL = sphereURL;
         
     // load the spheres file
     var httpReq = new XMLHttpRequest(); // a new http request
@@ -307,6 +305,8 @@ function main(){
 	var context = canvas.getContext("2d");
 	setCanvasSize();
 	//getTheSpheres
+	sphereURL=document.getElementById('sphereUrl').value.trim();
+	lightURL=document.getElementById('lightUrl').value.trim();
 	getInputSpheres();
 	getInputLights();
 	loopOverPixels(context)
