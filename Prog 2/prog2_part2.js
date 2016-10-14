@@ -87,7 +87,7 @@ function setupWebGL() {
 
 // read triangles in, load them into webgl buffers
 function loadTriangles() {
-    var inputTriangles = getJSONFile(INPUT_TRIANGLES_URL,"triangles");
+    var inputTriangles = getJSONFile(INPUT_TRIANGLES_URL,"triangles"); console.log(inputTriangles);
 
     if (inputTriangles != String.null) { 
         var whichSetVert; // index of vertex in current triangle set
@@ -206,8 +206,8 @@ function setupShaders() {
                 //gl.enableVertexAttribArray(vertexColorAttrib);
                 shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
                 shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-                //mat4.perspective(pMatrix, 90*(3.14/180), 600/600, 0.1, 1);
-                //mat4.lookAt(mvMatrix, eye, center, lookUp);
+                mat4.perspective(pMatrix, 90*(3.14/180), 600/600, 0.1, 1);
+                mat4.lookAt(mvMatrix, eye, center, lookUp);
                 //mat4.frustum(pMatrix, WIN_LEFT, WIN_RIGHT, WIN_BOTTOM, WIN_TOP, 0.0, 1.0);
                 
                 //mat4.identity(mvMatrix);
