@@ -115,7 +115,7 @@ function loadTriangles() {
         } // end for each triangle set 
         triBufferSize *= 3; // now total number of indices
 
-        // console.log("coordinates: "+coordArray.toString());
+         console.log("coordinates: "+coordArray.toString());
         // console.log("numverts: "+vtxBufferSize);
         // console.log("indices: "+indexArray.toString());
         // console.log("numindices: "+triBufferSize);
